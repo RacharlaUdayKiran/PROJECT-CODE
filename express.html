@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rate Limited Buttons</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        .button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 10px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+        }
+        .blue-button {
+            background-color: blue;
+            color: white;
+        }
+        .red-button {
+            background-color: red;
+            color: white;
+        }
+        .message {
+            margin-top: 20px;
+            font-size: 18px;
+            color: darkred;
+        }
+    </style>
+</head>
+<body>
+    <h1>Rate Limited Buttons</h1>
+    <button id="blueButton" class="button blue-button">Blue Button</button>
+    <button id="redButton" class="button red-button">Red Button</button>
+    <div id="message" class="message"></div>
+
+    <script>
+        const blueButton = document.getElementById('blueButton');
+        const redButton = document.getElementById('redButton');
+        const messageDiv = document.getElementById('message');
+
+        'letconst'; 'rateLimit' = 10; // Max clicks per minute
+        const resetTime = 60000; // 60 seconds in milliseconds
+
+        let blueClicks = 0;
+        let redClicks = 0;
+
+        function handleClick(button) {
+            if (button === 'blue') {
+                if (blueClicks < rateLimit) {
+                    blueClicks++;
+                    messageDiv.textContent = '';
+                } else {
+                    messageDiv.textContent = 'Blue Button rate limit reached! Please wait.';
+                }
+            } else if (button === 'red') {
+                if (redClicks < rateLimit) {
+                    redClicks++;
+                    messageDiv.textContent = '';
+                } else {
+                    messageDiv.textContent = 'Red Button rate limit reached! Please wait.';
+                }
+            }
+        }
+
+        function resetClicks(button) {
+            if (button === 'blue') {
+                blueClicks = 0;
+            } else if (button === 'red') {
+                redClicks = 0;
+            }
+        }
+
+        blueButton.addEventListener('click', () => handleClick('blue'));
+        redButton.addEventListener('click', () => handleClick('red'));
+
+        setInterval(() => resetClicks('blue'), resetTime);
+        setInterval(() => resetClicks('red'), resetTime);
+    </script>
+</body>
+</html>
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Button Click Logger</title>
+</head>
+<body>
+    <button id="redButton" style="background-color: red;" onclick="logClick('red')">Red Button</button>
+    <button id="blueButton" style="background-color: blue;" onclick="logClick('blue')">Blue Button</button>
+
+    <script>
+        async function logClick(color) {
+            const timestamp = new Date().toISOString();
+            
+            // Fetch user IP address
+            const ipResponse = await fetch('https://api.ipify.org?format=json');
+            const ipData = await ipResponse.json();
+            const userIP = ipData.ip;
+
+            // Send data to the server
+            fetch('/log_click', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ color, timestamp, userIP })
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Click logged successfully!');
+                } else {
+                    console.error('Error logging click:', response.statusText);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Rate Limiting Example</title>
+        <style>
+            button {
+                margin: 10px;
+                padding: 10px 20px;
+                font-size: 16px;
+            }
+        </style>
+    </head>
+    <body>
+        <button id="rateLimitedButton">Click Me</button>
+        <p id="message"></p>
+    
+        <script>
+            const button = document.getElementById('rateLimitedButton');
+            const message = document.getElementById('message');
+    
+            let clickTimestamps = [];
+            const limit = 10; // Maximum clicks allowed
+            const timeFrame = 60000; // 60 seconds in milliseconds
+    
+            button.addEventListener('click', () => {
+                const now = Date.now();
+    
+                // Remove timestamps older than the time frame
+                clickTimestamps = clickTimestamps.filter(timestamp => now - timestamp < timeFrame);
+    
+                if (clickTimestamps.length < limit) {
+                    clickTimestamps.push(now);
+                    message.textContent = `Button clicked! Total clicks in the last minute: ${clickTimestamps.length}`;
+                    message.style.color = 'green';
+                } else {
+                    message.textContent = `Rate limit exceeded. Please wait before clicking again.`;
+                    message.style.color = 'red';
+                }
+            });
+        </script>
+    </body>
+    </html>
+     
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rate Limit Notification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .notification {
+            display: none;
+            padding: 10px;
+            margin-top: 20px;
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <button id="rateLimitButton">Click Me</button>
+    <div id="notification" class="notification"></div>
+
+    <script>
+        const rateLimitButton = document.getElementById('rateLimitButton');
+        const notification = document.getElementById('notification');
+
+        // Simulate rate limit
+        let clickCount = 0;
+        const rateLimit = 5;
+
+        // Simulate getting the user's IP address
+        async function getUserIp() {
+            const response = await fetch('https://api.ipify.org?format=json');
+            const data = await response.json();
+            return data.ip;
+        }
+
+        async function publishToPubSub(buttonInfo, timestamp, userIp) {
+            const message = {
+                buttonInfo,
+                timestamp,
+                userIp,
+            };
+
+            try {
+                // Replace this URL with your Pub/Sub endpoint
+                const pubSubEndpoint = 'https://your-cloud-function-endpoint';
+                await fetch(pubSubEndpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(message),
+                });
+                console.log('Message published to Pub/Sub:', message);
+            } catch (error) {
+                console.error('Error publishing to Pub/Sub:', error);
+            }
+        }
+
+        rateLimitButton.addEventListener('click', async () => {
+            clickCount++;
+
+            if (clickCount > rateLimit) {
+                const buttonInfo = 'Rate Limit Button';
+                const timestamp = new Date().toISOString();
+                const userIp = await getUserIp();
+
+                // Publish the message to Pub/Sub
+                await publishToPubSub(buttonInfo, timestamp, userIp);
+
+                // Show notification on UI
+                notification.textContent = `Rate limit reached! Button Info: ${buttonInfo}, Timestamp: ${timestamp}, User IP: ${userIp}`;
+                notification.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
